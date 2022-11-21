@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  server:
+    volumes:
+      - ./server/src:/server/src:ro
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./server/.env
+  client:
+    volumes:
+      - ./client/src:/client/src:ro
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+  database:
+    env_file: ./server/.env
+    ports:
+      - "5432:5432"

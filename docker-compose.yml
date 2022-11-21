@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  server:
+    container_name: node-server
+    build: ./server
+    depends_on:
+      - database
+  client:
+    container_name: react-app
+    build: ./client
+    stdin_open: true
+    tty: true
+  database:
+    container_name: postgres
+    image: postgres
+    volumes:
+      - data:/data/db
+volumes: 
+ data: {}
