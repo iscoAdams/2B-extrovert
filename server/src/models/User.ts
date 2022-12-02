@@ -16,7 +16,7 @@ export class User extends Model<User> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    unique: true,
+    unique: false,
   })
   username: string;
 
@@ -24,7 +24,7 @@ export class User extends Model<User> {
     type: DataType.STRING,
     allowNull: false,
   })
-  nickName: string;
+  nickname: string;
 
   @Column({
     type: DataType.STRING,

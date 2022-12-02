@@ -1,20 +1,32 @@
 import express, { Request, Response } from "express";
 import { User } from "../models/User";
-import { asyncWrapper } from "../middlewares/asyncWrapper";
+import { asyncWrapper } from "../middleware/asyncWrapper";
 import bcrypt from "bcryptjs";
+import { sign } from "jsonwebtoken";
+import { handleUnauthorizedErr, handleBadRequestErr } from "../error/errUtil";
 
-export default asyncWrapper (async (req: Request, res: Response) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ where: { username } });
-    if (!user) {
-        return res.status(400).send("user not found");
+export default asyncWrapper(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw handleBadRequestErr("something is missing");
+  }
+  const user = await User.findOne({
+    where: { email },
+  });
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!user || !validPassword) {
+    throw handleUnauthorizedErr("invalid credentials");
+  }
+  const token = sign(
+    { userId: user.id, email: user.username },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1h",
     }
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-        return res.status(400).send("invalid credentials");
-    }
-    res.status(200).send({
-        message: "user logged in",
-        user,
-    });
+  );
+  res.status(200).json({
+    message: "user logged in",
+    email,
+    token,
+  });
 });
